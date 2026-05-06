@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\{
     GoogleController,
     ForgotPasswordController,
     ResetPasswordController,
+    loginController,
 };
 use App\Http\Controllers\Admin\{
     DashboardController as AdminDashboardController,
@@ -25,14 +26,14 @@ use App\Http\Controllers\Admin\{
 };
 
 // ─── HOMEPAGE ───
-// Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // ─── AUTH ───
 Route::middleware('guest')->group(function () {
     Route::get('/auth/register', [RegisterController::class, 'show'])->name('register');
     Route::post('/auth/register', [RegisterController::class, 'store']);
-    Route::get('/auth/login', fn() => view('auth.login'))->name('login');
-    // Route::post('/auth/login', [AuthenticatedSessionController::class, 'store']); // Gunakan default Laravel atau custom
+     Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/auth/login', [LoginController::class, 'login']);// Gunakan default Laravel atau custom
     Route::get('/auth/forgot-password', [ForgotPasswordController::class, 'show'])->name('password.request');
     Route::post('/auth/forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email');
     Route::get('/auth/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
@@ -69,8 +70,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     // Route::get('/profile/bookmarks', [ProfileController::class, 'bookmarks'])->name('profile.bookmarks');
     // Route::get('/profile/history', [ProfileController::class, 'history'])->name('profile.history');
-    // Route::get('/feedback', [FeedbackController::class, 'show'])->name('feedback.show');
-    // Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+    Route::get('/feedback', [FeedbackController::class, 'show'])->name('feedback.show');
+    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 });
 
 // ─── ADMIN ───
