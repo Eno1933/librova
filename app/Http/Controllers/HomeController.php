@@ -1,14 +1,26 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Category;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index(): View
+    /**
+     * Tampilkan homepage untuk guest, atau redirect ke dashboard jika sudah login.
+     */
+    public function index(): View|RedirectResponse
     {
+        // Jika user sudah login, langsung arahkan ke dashboard
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
+        // Data untuk tampilan guest
         $featuredBooks = Book::where('is_featured', true)
             ->where('status', 'active')
             ->with('category')

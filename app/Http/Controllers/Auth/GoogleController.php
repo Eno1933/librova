@@ -49,7 +49,7 @@ class GoogleController extends Controller
         }
 
         Auth::login($user, true);
-        return redirect()->intended(route('home'))
+        return redirect()->intended(route('dashboard'))
             ->with('success', 'Selamat datang, ' . $user->name . '!');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     HomeController,
@@ -8,6 +9,7 @@ use App\Http\Controllers\{
     ReviewController,
     FeedbackController,
     ProfileController,
+    DashboardController,
 };
 use App\Http\Controllers\Auth\{
     RegisterController,
@@ -15,6 +17,7 @@ use App\Http\Controllers\Auth\{
     ForgotPasswordController,
     ResetPasswordController,
     loginController,
+    EmailVerificationController,
 };
 use App\Http\Controllers\Admin\{
     DashboardController as AdminDashboardController,
@@ -32,25 +35,31 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::middleware('guest')->group(function () {
     Route::get('/auth/register', [RegisterController::class, 'show'])->name('register');
     Route::post('/auth/register', [RegisterController::class, 'store']);
-     Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/auth/login', [LoginController::class, 'login']);// Gunakan default Laravel atau custom
-    Route::get('/auth/forgot-password', [ForgotPasswordController::class, 'show'])->name('password.request');
-    Route::post('/auth/forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email');
-    Route::get('/auth/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
-    Route::post('/auth/reset-password', [ResetPasswordController::class, 'store'])->name('password.update');
+    Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/auth/login', [LoginController::class, 'login']); // Gunakan default Laravel atau custom
+    Route::get('/auth/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
+        ->name('password.request');
+    Route::post('/auth/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+        ->name('password.email');
+    Route::get('/auth/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])
+        ->name('password.reset');
+    Route::post('/auth/reset-password', [ResetPasswordController::class, 'reset'])
+        ->name('password.update');
     Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.login');
     Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
 });
 
-// Route::post('/auth/logout', fn() => auth()->logout() && request()->session()->invalidate())
-//     ->middleware('auth')->name('logout');
+Route::post('/auth/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Verifikasi email (Laravel default)
 Route::middleware('auth')->group(function () {
-    Route::get('/email/verify', fn() => view('auth.verify-email'))->name('verification.notice');
-    Route::get('/email/verify/{id}/{hash}', function () {
-        // Gunakan default verifikasi Laravel
-    })->middleware('signed')->name('verification.verify');
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])
+        ->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware('signed')
+        ->name('verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
 });
 
 // ─── PUBLIC BOOKS & CATEGORIES ───
@@ -62,14 +71,15 @@ Route::get('/search', [BookController::class, 'index'])->name('search');
 
 // ─── USER (terautentikasi & terverifikasi) ───
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/books/{slug}/read', [BookController::class, 'read'])->name('books.read');
     Route::post('/books/{book}/rate', [RatingController::class, 'store'])->name('books.rate');
     Route::get('/books/{book}/my-rating', [RatingController::class, 'getUserRating'])->name('books.my-rating');
     // Route::post('/books/{book}/review', [ReviewController::class, 'store'])->name('reviews.store');
     // Route::post('/books/{book}/bookmark', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
-    // Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-    // Route::get('/profile/bookmarks', [ProfileController::class, 'bookmarks'])->name('profile.bookmarks');
-    // Route::get('/profile/history', [ProfileController::class, 'history'])->name('profile.history');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/profile/bookmarks', [ProfileController::class, 'bookmarks'])->name('profile.bookmarks');
+    Route::get('/profile/history', [ProfileController::class, 'history'])->name('profile.history');
     Route::get('/feedback', [FeedbackController::class, 'show'])->name('feedback.show');
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 });

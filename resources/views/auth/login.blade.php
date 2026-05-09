@@ -16,6 +16,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Masuk — Librova</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <script>
+        (function() {
+            const stored = localStorage.getItem('librova-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            let theme = stored ? stored : (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.classList.remove('no-flash');
+        })();
+    </script>
+    
     <style>
         /* Tambahan kecil untuk layout login yang tidak ada di custom.css */
         .login-container {
