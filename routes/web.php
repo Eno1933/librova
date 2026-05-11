@@ -78,6 +78,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::post('/books/{book}/review', [ReviewController::class, 'store'])->name('reviews.store');
     // Route::post('/books/{book}/bookmark', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     Route::get('/profile/bookmarks', [ProfileController::class, 'bookmarks'])->name('profile.bookmarks');
     Route::get('/profile/history', [ProfileController::class, 'history'])->name('profile.history');
     Route::get('/feedback', [FeedbackController::class, 'show'])->name('feedback.show');

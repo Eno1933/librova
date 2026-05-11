@@ -1,6 +1,6 @@
 @props(['active' => 'home'])
 
-{{-- ▸ Bottom Navbar Styles (scoped) --}}
+@auth
 <style>
 .bnav {
     position: fixed;
@@ -363,3 +363,4 @@
 
 {{-- Spacer untuk mobile bottom nav --}}
 <span class="bnav-spacer" aria-hidden="true"></span>
+@endauth

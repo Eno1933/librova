@@ -5,7 +5,7 @@
 @push('styles')
 <style>
     /* ═══════════════════════════════════════════
-       CATEGORIES PAGE — LIBROVA STYLE
+       CATEGORIES PAGE — LIBROVA STYLE (Bootstrap Icons)
     ═══════════════════════════════════════════ */
     .cats-page {
         padding: 0 0 100px;
@@ -168,6 +168,7 @@
         padding: 0 12px;
         color: var(--tx3);
         flex-shrink: 0;
+        font-size: 1rem;
     }
     .cats-search-box input {
         flex: 1;
@@ -256,6 +257,7 @@
         gap: 6px;
         text-decoration: none;
     }
+    .cats-tab i { font-size: 1rem; }
     .cats-tab:hover {
         color: var(--tx);
     }
@@ -364,9 +366,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 1.6rem;
         margin-bottom: 16px;
         background: var(--cat-bg, rgba(44, 95, 46, .08));
+        color: var(--primary);
         transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
     }
     .cat-card-v2:hover .cat-icon-box {
@@ -405,9 +408,8 @@
         align-items: center;
         gap: 5px;
     }
-    .cat-book-count svg {
-        width: 13px;
-        height: 13px;
+    .cat-book-count i {
+        font-size: 0.8rem;
         color: var(--tx3);
     }
     .cat-arrow {
@@ -421,6 +423,7 @@
         color: var(--tx3);
         flex-shrink: 0;
         transition: background .2s, border-color .2s, color .2s, transform .2s;
+        font-size: 0.8rem;
     }
     .cat-card-v2:hover .cat-arrow {
         background: var(--primary);
@@ -450,7 +453,8 @@
         align-items: center;
         justify-content: center;
         margin: 0 auto 18px;
-        font-size: 28px;
+        font-size: 2rem;
+        color: var(--tx3);
         box-shadow: 0 4px 20px rgba(0, 0, 0, .05);
     }
     .cats-empty-title {
@@ -514,7 +518,7 @@
         .cat-icon-box {
             width: 44px;
             height: 44px;
-            font-size: 20px;
+            font-size: 1.4rem;
             margin-bottom: 12px;
         }
     }
@@ -532,15 +536,15 @@
                 <p class="cats-hero-desc">Pilih topik yang ingin kamu dalami. Setiap kategori dikurasi dengan koleksi e-book terbaik dari penulis ternama.</p>
                 <div class="cats-stat-row">
                     <div class="cats-stat-chip chip-primary">
-                        <span class="chip-dot" style="background:var(--primary)"></span>
+                        <i class="bi bi-folder-fill" style="font-size:0.8rem; color:var(--primary); margin-right:2px;"></i>
                         {{ $totalCategories }} Kategori Utama
                     </div>
                     <div class="cats-stat-chip">
-                        <span class="chip-dot"></span>
+                        <i class="bi bi-book-fill" style="font-size:0.8rem; color:var(--gold); margin-right:2px;"></i>
                         {{ number_format($totalBooks, 0, ',', '.') }}+ Buku
                     </div>
                     <div class="cats-stat-chip">
-                        <span class="chip-dot" style="background:var(--tx3)"></span>
+                        <i class="bi bi-diagram-3-fill" style="font-size:0.8rem; color:var(--tx3); margin-right:2px;"></i>
                         {{ $totalSubCategories }} Sub-kategori
                     </div>
                 </div>
@@ -550,16 +554,11 @@
             <div class="cats-hero-search">
                 <form action="{{ route('categories.index') }}" method="GET" class="cats-search-box">
                     <span class="cats-search-icon">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
+                        <i class="bi bi-search"></i>
                     </span>
                     <input type="text" name="search" placeholder="Cari kategori…" value="{{ request('search') }}">
                     <button type="submit" class="cats-search-btn">
-                        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        Cari
+                        <i class="bi bi-search" style="font-size:0.75rem;"></i> Cari
                     </button>
                 </form>
             </div>
@@ -569,10 +568,12 @@
     {{-- ═══════════ FILTER TABS ═══════════ --}}
     <div class="cats-tabs-wrap">
         <div class="cats-tabs-inner">
-            <a href="{{ route('categories.index') }}" class="cats-tab {{ !request('search') ? 'active' : '' }}">Semua</a>
+            <a href="{{ route('categories.index') }}" class="cats-tab {{ !request('search') ? 'active' : '' }}">
+                <i class="bi bi-grid-fill"></i> Semua
+            </a>
             @foreach($categories as $cat)
                 <a href="{{ route('categories.index', ['search' => $cat->name]) }}" class="cats-tab {{ request('search') == $cat->name ? 'active' : '' }}">
-                    {{ $cat->name }}
+                    <i class="bi bi-folder"></i> {{ $cat->name }}
                 </a>
             @endforeach
         </div>
@@ -582,7 +583,8 @@
     <div class="cats-body">
         <div class="cats-section-label">
             <div class="cats-section-title">
-                ✦ {{ request('search') ? 'Hasil Pencarian' : 'Semua Kategori' }}
+                <i class="bi {{ request('search') ? 'bi-search' : 'bi-star-fill' }}" style="color:var(--primary);"></i>
+                {{ request('search') ? 'Hasil Pencarian' : 'Semua Kategori' }}
             </div>
             <span class="cats-count-badge">{{ $categories->count() }} kategori</span>
         </div>
@@ -595,24 +597,17 @@
                        style="--cat-accent:{{ $category->accent_color ?? '#2C5F2E' }};">
                         <div class="cat-card-inner">
                             <div class="cat-icon-box" style="background:{{ $category->icon_bg ?? 'rgba(44,95,46,.1)' }}">
-                                {{-- Ikon default buku --}}
-                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                </svg>
+                                <i class="bi bi-book-fill"></i>
                             </div>
                             <div class="cat-card-name">{{ $category->name }}</div>
                             <div class="cat-card-desc">{{ $category->description ?? 'Jelajahi koleksi ' . $category->name . ' terbaik.' }}</div>
                             <div class="cat-card-footer">
                                 <div class="cat-book-count">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
+                                    <i class="bi bi-book"></i>
                                     {{ $category->books_count ?? $category->books()->count() }} buku
                                 </div>
                                 <div class="cat-arrow">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                                    </svg>
+                                    <i class="bi bi-chevron-right"></i>
                                 </div>
                             </div>
                         </div>
@@ -623,17 +618,12 @@
             {{-- Empty State --}}
             <div class="cats-empty">
                 <div class="cats-empty-icon">
-                    <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-                    </svg>
+                    <i class="bi bi-folder-x"></i>
                 </div>
                 <div class="cats-empty-title">Kategori tidak ditemukan</div>
                 <p class="cats-empty-desc">Coba kata kunci lain atau telusuri semua kategori.</p>
                 <a href="{{ route('categories.index') }}" class="cats-empty-btn">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                    Hapus Pencarian
+                    <i class="bi bi-x-circle"></i> Hapus Pencarian
                 </a>
             </div>
         @endif

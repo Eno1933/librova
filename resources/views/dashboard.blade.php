@@ -5,7 +5,7 @@
 @push('styles')
 <style>
 /* ═══════════════════════════════════════════════
-   DASHBOARD PAGE STYLES
+   DASHBOARD PAGE STYLES (ICONS: Bootstrap Icons)
 ═══════════════════════════════════════════════ */
 
 /* ── Page layout ── */
@@ -153,7 +153,7 @@
     font-weight: 600;
 }
 [data-theme="dark"] .dash-cat-pill.active { background: rgba(74,222,128,0.08); }
-.dash-cat-pill .cat-emoji { font-size: 14px; line-height: 1; }
+.cat-icon-pill { font-size: 1rem; }
 
 /* ── Section header inside main grid ── */
 .dash-section-head {
@@ -221,7 +221,6 @@
     display: flex; flex-direction: column;
     justify-content: flex-end; padding: 14px;
 }
-/* subtle light sweep on cover */
 .bk-cover-d::before {
     content: '';
     position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
@@ -230,7 +229,6 @@
     pointer-events: none;
 }
 .bk-card-d:hover .bk-cover-d::before { left: 130%; }
-/* overlay */
 .bk-cover-d::after {
     content: '';
     position: absolute; inset: 0;
@@ -242,7 +240,7 @@
     position: absolute; top: 10px; left: 10px; z-index: 2;
     width: 26px; height: 26px; border-radius: 50%;
     background: var(--gold, #C9A84C); color: #000;
-    font-size: 11px; font-weight: 700;
+    font-size: 15px; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
@@ -277,13 +275,13 @@
     display: flex; align-items: center; justify-content: space-between;
     gap: 4px;
 }
-.bk-stars { color: var(--gold, #C9A84C); font-size: 11px; letter-spacing: 0.5px; }
+.bk-stars { color: var(--gold); font-size: 0.9rem; letter-spacing: -1px; }
 .bk-rating-txt { font-size: 0.7rem; color: var(--tx3); font-weight: 500; }
 .bk-views {
     font-size: 0.65rem; color: var(--tx3);
     display: flex; align-items: center; gap: 3px;
 }
-.bk-views svg { width: 10px; height: 10px; }
+.bk-views i { font-size: 0.8rem; }
 
 /* ── Empty State ── */
 .dash-empty {
@@ -295,7 +293,7 @@
     width: 72px; height: 72px; border-radius: 20px;
     background: var(--surface); border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px; font-size: 28px;
+    margin: 0 auto 20px; font-size: 30px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 .dash-empty-title {
@@ -321,7 +319,6 @@
 .dash-pagination nav {
     display: flex; justify-content: center;
 }
-/* Override default Laravel pagination for elegance */
 .dash-pagination .pagination {
     display: flex; gap: 6px; list-style: none; align-items: center;
 }
@@ -340,14 +337,6 @@
     font-weight: 600;
 }
 [data-theme="dark"] .dash-pagination .page-item.active .page-link { color: var(--bg); }
-
-/* ── Result count label ── */
-.result-count {
-    font-size: 0.8rem; color: var(--tx3); margin-bottom: 16px;
-    padding: 0 24px;
-    max-width: 1200px; margin-left: auto; margin-right: auto;
-}
-.result-count strong { color: var(--tx2); font-weight: 600; }
 
 /* ── Responsive ── */
 @media(max-width: 768px) {
@@ -392,7 +381,6 @@
                 </p>
             </div>
 
-            {{-- Quick stats --}}
             <div class="dash-stats">
                 <div class="dash-stat">
                     <span class="dash-stat-num">{{ $books->total() }}+</span>
@@ -415,16 +403,12 @@
     {{-- ── Search Bar ── --}}
     <div class="dash-search-wrap">
         <form action="{{ route('dashboard') }}" method="GET">
-            {{-- Preserve category filter when searching --}}
             @if(request('category'))
                 <input type="hidden" name="category" value="{{ request('category') }}">
             @endif
             <div class="dash-search">
                 <span class="dash-search-icon">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
+                    <i class="bi bi-search" style="font-size: 1.1rem;"></i>
                 </span>
                 <input type="text" name="search"
                        placeholder="Cari judul, penulis, atau ISBN…"
@@ -432,14 +416,13 @@
                        autocomplete="off">
                 @if(request('search'))
                 <a href="{{ route('dashboard', array_filter(['category' => request('category')])) }}"
-                   style="display:flex;align-items:center;padding:0 12px;color:var(--tx3);text-decoration:none;font-size:18px;transition:color .15s"
-                   title="Hapus pencarian">×</a>
+                   style="display:flex;align-items:center;padding:0 12px;color:var(--tx3);text-decoration:none;font-size:1.2rem;transition:color .15s"
+                   title="Hapus pencarian">
+                    <i class="bi bi-x"></i>
+                </a>
                 @endif
                 <button type="submit" class="dash-search-btn">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
+                    <i class="bi bi-search"></i>
                     Cari
                 </button>
             </div>
@@ -449,43 +432,38 @@
     {{-- ── Category Pills ── --}}
     <div class="dash-cats-wrap">
         <div class="dash-cats-scroll">
-            {{-- All --}}
             <a href="{{ route('dashboard', array_filter(['search' => request('search')])) }}"
                class="dash-cat-pill {{ !request('category') ? 'active' : '' }}">
-                <span class="cat-emoji">📚</span> Semua
+                <i class="bi bi-collection cat-icon-pill"></i> Semua
             </a>
-
-            {{-- Dynamic categories --}}
             @foreach($categories as $cat)
             <a href="{{ route('dashboard', array_filter(['category' => $cat->slug, 'search' => request('search')])) }}"
                class="dash-cat-pill {{ request('category') == $cat->slug ? 'active' : '' }}">
-                <span class="cat-emoji">{{ $cat->icon ?? '📖' }}</span>
+                <i class="bi bi-folder cat-icon-pill"></i>
                 {{ $cat->name }}
             </a>
             @endforeach
         </div>
     </div>
 
-    {{-- ── Section heading + result info ── --}}
+    {{-- ── Book Grid ── --}}
     @if($books->count())
     <div style="max-width:1200px;margin:0 auto;padding:0 24px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:8px">
+            <i class="bi {{ request('search') ? 'bi-search' : (request('category') ? 'bi-folder' : 'bi-star') }}" style="font-size:1.4rem;color:var(--primary)"></i>
             <span style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--tx)">
                 @if(request('search'))
-                    🔍 Hasil Pencarian
+                    Hasil Pencarian
                 @elseif(request('category'))
-                    📂 {{ $categories->where('slug', request('category'))->first()?->name ?? 'Kategori' }}
+                    {{ $categories->where('slug', request('category'))->first()?->name ?? 'Kategori' }}
                 @else
-                    ✦ Semua Koleksi
+                    Semua Koleksi
                 @endif
             </span>
         </div>
-        <span style="font-size:0.78rem;color:var(--tx3);font-weight:500">
-            {{ number_format($books->total()) }} buku ditemukan
-        </span>
+        <span class="dash-section-meta">{{ number_format($books->total()) }} buku ditemukan</span>
     </div>
 
-    {{-- ── Book Grid ── --}}
     <div class="books-outer">
         <div class="books-grid-dash">
             @foreach($books as $book)
@@ -493,7 +471,7 @@
                 <div class="bk-cover-d"
                      style="background: linear-gradient(145deg, {{ $book->cover_color ?? '#2C5F2E' }}, {{ $book->cover_color_dark ?? '#1d4220' }})">
                     @if($book->is_featured)
-                    <span class="bk-star-badge">★</span>
+                    <span class="bk-star-badge"><i class="bi bi-star-fill" style="font-size:0.8rem;"></i></span>
                     @endif
                     <div class="bk-cover-title-d">{{ Str::limit($book->title, 22) }}</div>
                 </div>
@@ -504,17 +482,14 @@
                     <div class="bk-footer-d">
                         <div style="display:flex;align-items:center;gap:4px">
                             <span class="bk-stars">
-                                @for($i = 1; $i <= 5; $i++){{ $i <= round($book->averageRating()) ? '★' : '☆' }}@endfor
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="bi {{ $i <= round($book->averageRating()) ? 'bi-star-fill' : 'bi-star' }}"></i>
+                                @endfor
                             </span>
                             <span class="bk-rating-txt">{{ number_format($book->averageRating(), 1) }}</span>
                         </div>
                         <span class="bk-views">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
+                            <i class="bi bi-eye"></i>
                             {{ number_format($book->view_count ?? 0) }}
                         </span>
                     </div>
@@ -524,21 +499,15 @@
         </div>
     </div>
 
-    {{-- ── Pagination ── --}}
     <div class="dash-pagination">
         {{ $books->appends(request()->query())->links() }}
     </div>
 
     @else
-    {{-- ── Empty State ── --}}
     <div class="books-outer">
         <div class="dash-empty">
             <div class="dash-empty-icon">
-                @if(request('search'))
-                    🔍
-                @else
-                    📭
-                @endif
+                <i class="bi {{ request('search') ? 'bi-search' : 'bi-inbox' }}" style="font-size:2rem;color:var(--tx3)"></i>
             </div>
             <h3 class="dash-empty-title">
                 @if(request('search'))
@@ -555,9 +524,7 @@
                 @endif
             </p>
             <a href="{{ route('dashboard') }}" class="dash-empty-btn">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
+                <i class="bi bi-arrow-left"></i>
                 Lihat Semua Buku
             </a>
         </div>
@@ -571,7 +538,6 @@
 
 @push('scripts')
 <script>
-    // Smooth active pill scroll into view on load
     document.addEventListener('DOMContentLoaded', () => {
         const active = document.querySelector('.dash-cat-pill.active');
         if (active) {
