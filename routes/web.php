@@ -73,10 +73,11 @@ Route::get('/search', [BookController::class, 'index'])->name('search');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/books/{slug}/read', [BookController::class, 'read'])->name('books.read');
+    Route::get('/books/{book}/file', [BookController::class, 'serveFile'])->name('books.file');
     Route::post('/books/{book}/rate', [RatingController::class, 'store'])->name('books.rate');
     Route::get('/books/{book}/my-rating', [RatingController::class, 'getUserRating'])->name('books.my-rating');
-    // Route::post('/books/{book}/review', [ReviewController::class, 'store'])->name('reviews.store');
-    // Route::post('/books/{book}/bookmark', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+    Route::post('/books/{book}/review', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::post('/books/{book}/bookmark', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
