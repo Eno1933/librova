@@ -103,13 +103,13 @@
     }
     .adm-nav::-webkit-scrollbar { display: none; }
 
-    /* Section label */
+    /* Section label – FIXED visibility */
     .adm-nav-label {
-        font-size: .64rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: .1em;
-        color: var(--tx3);
-        padding: 10px 12px 4px;
-        white-space: nowrap; overflow: hidden;
+        font-size: .68rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: .12em;
+        color: var(--tx2);
+        padding: 12px 12px 6px;
+        opacity: 0.85;
     }
 
     /* Nav link */

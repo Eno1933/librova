@@ -33,6 +33,12 @@ class LoginController extends Controller
         // Cari user berdasarkan email
         $user = User::where('email', $request->email)->first();
 
+        if ($user->suspended_at) {
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda telah dinonaktifkan.',
+            ]);
+        }
+
         // 1. User tidak ditemukan
         if (!$user) {
             throw ValidationException::withMessages([

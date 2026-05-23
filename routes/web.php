@@ -10,6 +10,7 @@ use App\Http\Controllers\{
     FeedbackController,
     ProfileController,
     DashboardController,
+    BookmarkController,
 };
 use App\Http\Controllers\Auth\{
     RegisterController,
@@ -60,6 +61,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
+     Route::post('/books/{book}/bookmark', [BookmarkController::class, 'toggle'])
+        ->name('bookmarks.toggle');
 });
 
 // ─── PUBLIC BOOKS & CATEGORIES ───
@@ -94,8 +97,8 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::resource('categories', AdminCategoryController::class)->except('show');
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
     Route::patch('users/{user}/toggle-suspend', [AdminUserController::class, 'toggleSuspend'])->name('users.toggle-suspend');
-    Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
-    Route::patch('reviews/{review}/status', [AdminReviewController::class, 'updateStatus'])->name('reviews.update-status');
+    Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('reviews/{review}/status', [ReviewController::class, 'updateStatus'])->name('reviews.update-status');
     Route::get('feedbacks', [AdminFeedbackController::class, 'index'])->name('feedbacks.index');
     Route::post('feedbacks/{feedback}/reply', [AdminFeedbackController::class, 'reply'])->name('feedbacks.reply');
     Route::get('reports', [AdminDashboardController::class, 'reports'])->name('reports');

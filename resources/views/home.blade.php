@@ -59,7 +59,7 @@
     .pop-item:hover { transform: translateX(4px); box-shadow: 0 4px 24px var(--shadow); border-color: var(--border2); }
     .pop-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; min-width: 40px; text-align: center; color: var(--border2); line-height: 1; }
     .pop-item:nth-child(1) .pop-num { color: var(--gold); } .pop-item:nth-child(2) .pop-num { color: var(--tx3); } .pop-item:nth-child(3) .pop-num { color: #8B7355; }
-    .pop-thumb { width: 52px; height: 76px; border-radius: 6px; flex-shrink: 0; overflow: hidden; }
+    .pop-thumb { width: 52px; height: 76px; border-radius: 6px; flex-shrink: 0; overflow: hidden; background-size: cover; background-position: center; }
     .pop-cat { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); margin-bottom: 3px; }
     .pop-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; color: var(--tx); line-height: 1.25; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pop-author { font-size: 0.74rem; color: var(--tx3); margin-bottom: 5px; }
@@ -163,7 +163,7 @@
     <div class="bk-grid">
       @foreach($featuredBooks as $book)
         <a href="{{ route('books.show', $book->slug) }}" class="bk-card-hp">
-          <div class="bk-cover-hp" style="background: linear-gradient(145deg, {{ $book->cover_color ?? '#2C5F2E' }}, {{ $book->cover_color_dark ?? '#1d4220' }})">
+          <div class="bk-cover-hp" style="@if($book->cover_image) background-image: url('{{ Storage::url($book->cover_image) }}'); background-size: cover; background-position: center; @else background: linear-gradient(145deg, {{ $book->cover_color ?? '#2C5F2E' }}, {{ $book->cover_color_dark ?? '#1d4220' }}); @endif">
             @if($book->is_featured)<span class="bk-badge-hp"><i class="bi bi-star-fill"></i> Unggulan</span>@endif
             @if($book->created_at->isAfter(now()->subDays(30)))<span class="bk-new-hp"><i class="bi bi-bell-fill"></i> Baru</span>@endif
             <div class="bk-cover-title-hp">{{ Str::limit($book->title, 22) }}</div>
@@ -204,7 +204,7 @@
           @foreach($popularBooks->take(5) as $index => $book)
             <a href="{{ route('books.show', $book->slug) }}" class="pop-item">
               <div class="pop-num">{{ str_pad($index+1,2,'0',STR_PAD_LEFT) }}</div>
-              <div class="pop-thumb" style="background: linear-gradient(145deg, {{ $book->cover_color ?? '#2C5F2E' }}, {{ $book->cover_color_dark ?? '#1d4220' }})"></div>
+              <div class="pop-thumb" style="@if($book->cover_image) background-image: url('{{ Storage::url($book->cover_image) }}'); @else background: linear-gradient(145deg, {{ $book->cover_color ?? '#2C5F2E' }}, {{ $book->cover_color_dark ?? '#1d4220' }}); @endif"></div>
               <div style="min-width:0;flex:1">
                 <div class="pop-cat">{{ $book->category->name ?? '' }}</div>
                 <div class="pop-title">{{ $book->title }}</div>
@@ -236,7 +236,7 @@
         <div class="bk-grid" style="grid-template-columns:repeat(2,1fr);gap:14px">
           @foreach($trendingBooks->take(4) as $book)
             <a href="{{ route('books.show', $book->slug) }}" class="bk-card-hp">
-              <div class="bk-cover-hp" style="background:linear-gradient(145deg,{{ $book->cover_color ?? '#3a6b5c' }},{{ $book->cover_color_dark ?? '#1d4035' }});aspect-ratio:1.6/2">
+              <div class="bk-cover-hp" style="@if($book->cover_image) background-image: url('{{ Storage::url($book->cover_image) }}'); background-size: cover; background-position: center; @else background: linear-gradient(145deg, {{ $book->cover_color ?? '#3a6b5c' }}, {{ $book->cover_color_dark ?? '#1d4035' }}); @endif aspect-ratio:1.6/2;">
                 @if($book->created_at->diffInDays(now()) < 7)<span class="bk-new-hp"><i class="bi bi-bell-fill"></i> Baru</span>@endif
                 <div class="bk-cover-title-hp">{{ Str::limit($book->title,15) }}</div>
               </div>
@@ -297,7 +297,7 @@
     <div class="scroll-row-hp">
       @foreach($newArrivals as $book)
         <a href="{{ route('books.show', $book->slug) }}" class="bk-card-hp">
-          <div class="bk-cover-hp" style="background:linear-gradient(145deg,{{ $book->cover_color ?? '#1a5c4a' }},{{ $book->cover_color_dark ?? '#0d3a2d' }})">
+          <div class="bk-cover-hp" style="@if($book->cover_image) background-image: url('{{ Storage::url($book->cover_image) }}'); background-size: cover; background-position: center; @else background: linear-gradient(145deg, {{ $book->cover_color ?? '#1a5c4a' }}, {{ $book->cover_color_dark ?? '#0d3a2d' }}); @endif">
             <span class="bk-new-hp"><i class="bi bi-bell-fill"></i> Baru</span>
             <div class="bk-cover-title-hp">{{ Str::limit($book->title,20) }}</div>
           </div>
