@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -12,7 +13,12 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'avatar', 'google_id', 'email_verified_at',
+        'name',
+        'email',
+        'password',
+        'avatar',
+        'google_id',
+        'email_verified_at',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -25,10 +31,30 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function ratings() { return $this->hasMany(Rating::class); }
-    public function reviews() { return $this->hasMany(Review::class); }
-    public function bookmarks() { return $this->hasMany(Bookmark::class); }
-    public function feedbacks() { return $this->hasMany(Feedback::class); }
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class);
+    }
 
-    public function isAdmin(): bool { return $this->role === 'admin'; }
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function readingProgresses()
+    {
+        return $this->hasMany(ReadingProgress::class);
+    }
 }

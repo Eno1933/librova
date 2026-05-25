@@ -260,7 +260,6 @@
         <div class="bm-hero-inner">
             <div>
                 <div class="bm-eyebrow">
-                    <span class="bm-eyebrow-line"></span>
                     Perpustakaan Pribadi
                 </div>
                 <h1>Buku <em>Tersimpan</em></h1>

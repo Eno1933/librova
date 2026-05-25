@@ -11,6 +11,7 @@ use App\Http\Controllers\{
     ProfileController,
     DashboardController,
     BookmarkController,
+    ReadingProgressController,
 };
 use App\Http\Controllers\Auth\{
     RegisterController,
@@ -27,6 +28,7 @@ use App\Http\Controllers\Admin\{
     UserController as AdminUserController,
     ReviewController as AdminReviewController,
     FeedbackController as AdminFeedbackController,
+    SettingController as AdminSettingController,
 };
 
 // ─── HOMEPAGE ───
@@ -61,7 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
-     Route::post('/books/{book}/bookmark', [BookmarkController::class, 'toggle'])
+    Route::post('/books/{book}/bookmark', [BookmarkController::class, 'toggle'])
         ->name('bookmarks.toggle');
 });
 
@@ -72,6 +74,7 @@ Route::get('/categories', [CategoryController::class, 'index'])->name('categorie
 Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/search', [BookController::class, 'index'])->name('search');
 
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 // ─── USER (terautentikasi & terverifikasi) ───
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -87,7 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/bookmarks', [ProfileController::class, 'bookmarks'])->name('profile.bookmarks');
     Route::get('/profile/history', [ProfileController::class, 'history'])->name('profile.history');
     Route::get('/feedback', [FeedbackController::class, 'show'])->name('feedback.show');
-    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+    Route::post('/books/{book}/progress', [ReadingProgressController::class, 'store'])->name('books.progress.store');
 });
 
 // ─── ADMIN ───
@@ -101,6 +104,8 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::patch('reviews/{review}/status', [ReviewController::class, 'updateStatus'])->name('reviews.update-status');
     Route::get('feedbacks', [AdminFeedbackController::class, 'index'])->name('feedbacks.index');
     Route::post('feedbacks/{feedback}/reply', [AdminFeedbackController::class, 'reply'])->name('feedbacks.reply');
+    Route::patch('feedbacks/{feedback}/read', [AdminFeedbackController::class, 'markAsRead'])->name('feedbacks.read');
     Route::get('reports', [AdminDashboardController::class, 'reports'])->name('reports');
-    Route::get('settings', fn() => view('admin.settings'))->name('settings');
+    Route::get('settings', [AdminSettingController::class, 'index'])->name('settings');
+    Route::post('settings', [AdminSettingController::class, 'update'])->name('settings.update');
 });

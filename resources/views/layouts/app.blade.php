@@ -62,6 +62,7 @@
                 <a href="{{ route('categories.index') }}" class="nav-link">Kategori</a>
                 @auth
                 <a href="{{ route('profile.bookmarks') }}" class="nav-link">Bookmark</a>
+                <a href="{{ route('feedback.show') }}" class="nav-link">Feedback</a> <!-- Tautan Feedback -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="nav-link flex items-center gap-1">
                         {{ auth()->user()->name }}
@@ -71,6 +72,7 @@
                         <a href="{{ route('dashboard') }}" class="dropdown-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
                         <a href="{{ route('profile') }}" class="dropdown-item"><i class="bi bi-person"></i> Profil Saya</a>
                         <a href="{{ route('profile.history') }}" class="dropdown-item"><i class="bi bi-clock-history"></i> Riwayat Baca</a>
+                        <a href="{{ route('feedback.show') }}" class="dropdown-item"><i class="bi bi-chat-dots"></i> Kirim Feedback</a> <!-- Tambahan di dropdown -->
                         @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="dropdown-item" style="color: var(--primary);"><i class="bi bi-shield-lock"></i> Panel Admin</a>
                         @endif
@@ -116,10 +118,11 @@
             <a href="{{ route('books.index') }}" class="nav-link">Buku</a>
             <a href="{{ route('categories.index') }}" class="nav-link">Kategori</a>
             @auth
-                <a href="{{ route('profile.bookmarks') }}" class="nav-link"></i>Bookmark</a>
+                <a href="{{ route('profile.bookmarks') }}" class="nav-link">Bookmark</a>
                 <a href="{{ route('dashboard') }}" class="nav-link">Dashboard</a>
                 <a href="{{ route('profile') }}" class="nav-link">Profil</a>
                 <a href="{{ route('profile.history') }}" class="nav-link">Riwayat</a>
+                <a href="{{ route('feedback.show') }}" class="nav-link">Feedback</a> <!-- Tambahan di mobile -->
                 @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.dashboard') }}" class="nav-link" style="color: var(--primary);"><i class="bi bi-shield-lock"></i> Panel Admin</a>
                 @endif
@@ -167,6 +170,7 @@
                 <a href="{{ route('profile') }}">Profil</a>
                 <a href="{{ route('profile.bookmarks') }}">Bookmark</a>
                 <a href="{{ route('profile.history') }}">Riwayat Baca</a>
+                <a href="{{ route('feedback.show') }}">Feedback</a> <!-- Tambahan di footer -->
                 <form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="text-left text-sm">Keluar</button></form>
                 @else
                 <a href="{{ route('login') }}">Masuk</a>
