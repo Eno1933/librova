@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\{
     ReviewController as AdminReviewController,
     FeedbackController as AdminFeedbackController,
     SettingController as AdminSettingController,
+    NotificationController as AdminNotificationController,
 };
 
 // ─── HOMEPAGE ───
@@ -96,7 +97,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ─── ADMIN ───
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/export', [AdminDashboardController::class, 'export'])->name('dashboard.export');
     Route::resource('books', AdminBookController::class);
+    Route::patch('books/{book}/toggle-status', [AdminBookController::class, 'toggleStatus'])
+        ->name('books.toggleStatus');
     Route::resource('categories', AdminCategoryController::class)->except('show');
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
     Route::patch('users/{user}/toggle-suspend', [AdminUserController::class, 'toggleSuspend'])->name('users.toggle-suspend');
@@ -105,7 +109,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::get('feedbacks', [AdminFeedbackController::class, 'index'])->name('feedbacks.index');
     Route::post('feedbacks/{feedback}/reply', [AdminFeedbackController::class, 'reply'])->name('feedbacks.reply');
     Route::patch('feedbacks/{feedback}/read', [AdminFeedbackController::class, 'markAsRead'])->name('feedbacks.read');
-    Route::get('reports', [AdminDashboardController::class, 'reports'])->name('reports');
     Route::get('settings', [AdminSettingController::class, 'index'])->name('settings');
     Route::post('settings', [AdminSettingController::class, 'update'])->name('settings.update');
+    Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/{notification}/read', [AdminNotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('notifications/mark-all-read', [AdminNotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
 });

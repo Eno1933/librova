@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminNotification;
 use App\Models\Feedback;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,11 +32,18 @@ class FeedbackController extends Controller
             'message' => 'required|string|min:10|max:2000',
         ]);
 
-        Feedback::create([
+        $feedback = Feedback::create([
             'user_id' => auth()->check() ? auth()->id() : null,
             'subject' => $validated['subject'],
             'message' => $validated['message'],
             'status'  => 'new',
+        ]);
+
+        // Buat notifikasi untuk admin
+        AdminNotification::create([
+            'type'        => 'new_feedback',
+            'message'     => 'Feedback baru: ' . $feedback->subject,
+            'related_url' => route('admin.feedbacks.index'),
         ]);
 
         return redirect()->back()->with('success', 'Terima kasih! Masukan kamu telah dikirim.');

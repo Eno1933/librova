@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminNotification;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -20,15 +22,22 @@ class RegisterController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
+        ]);
+
+        // Notifikasi ke admin
+        AdminNotification::create([
+            'type'        => 'new_user',
+            'message'     => 'Pengguna baru mendaftar: ' . $user->name . ' (' . $user->email . ')',
+            'related_url' => route('admin.users.index'),
         ]);
 
         event(new Registered($user));

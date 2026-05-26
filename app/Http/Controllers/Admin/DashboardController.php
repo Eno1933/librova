@@ -9,8 +9,10 @@ use App\Models\Feedback;
 use App\Models\Rating;
 use App\Models\Review;
 use App\Models\User;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DashboardController extends Controller
 {
@@ -80,72 +82,37 @@ class DashboardController extends Controller
         ));
     }
 
-    public function reports(): View
+    /**
+     * Ekspor data dashboard ke CSV.
+     */
+    public function export(): StreamedResponse   // ← ubah type-hint
     {
-        $totalBooks    = Book::count();
-        $totalUsers    = User::where('role', 'user')->count();
-        $totalRatings  = Rating::count();
-        $totalReviews  = Review::count();
-        $newFeedbacks  = Feedback::where('status', 'new')->count();
+        $totalBooks   = Book::count();
+        $totalUsers   = User::where('role', 'user')->count();
+        $totalRatings = Rating::count();
+        $totalReviews = Review::count();
+        $newFeedbacks = Feedback::where('status', 'new')->count();
 
-        // Distribusi rating
-        $ratingsDistribution = Rating::select('score', DB::raw('count(*) as total'))
-            ->groupBy('score')
-            ->orderBy('score')
-            ->pluck('total', 'score')
-            ->toArray();
-        for ($i = 1; $i <= 5; $i++) {
-            $ratingsDistribution[$i] = $ratingsDistribution[$i] ?? 0;
-        }
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="librova-dashboard-' . now()->format('Ymd-His') . '.csv"',
+        ];
 
-        // Buku per kategori (top 8)
-        $booksPerCategory = Category::withCount('books')
-            ->orderByDesc('books_count')
-            ->limit(8)
-            ->get()
-            ->map(fn($cat) => [
-                'name' => $cat->name,
-                'count' => $cat->books_count,
-            ]);
+        $callback = function () use ($totalBooks, $totalUsers, $totalRatings, $totalReviews, $newFeedbacks) {
+            $file = fopen('php://output', 'w');
+            fwrite($file, "\xEF\xBB\xBF");   // BOM UTF-8
 
-        // User registrasi 6 bulan
-        $userRegistrations = User::select(
-            DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
-            DB::raw('count(*) as total')
-        )
-            ->where('role', 'user')
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get()
-            ->map(fn($item) => [
-                'month' => $item->month,
-                'total' => $item->total,
-            ]);
+            fputcsv($file, ['Statistik', 'Nilai']);
+            fputcsv($file, ['Total Buku', $totalBooks]);
+            fputcsv($file, ['Pengguna Terdaftar', $totalUsers]);
+            fputcsv($file, ['Total Rating', $totalRatings]);
+            fputcsv($file, ['Total Review', $totalReviews]);
+            fputcsv($file, ['Feedback Baru', $newFeedbacks]);
+            fputcsv($file, ['Tanggal Ekspor', now()->translatedFormat('d F Y H:i')]);
 
-        // Buku terpopuler
-        $popularBooks = Book::where('status', 'active')
-            ->orderByDesc('view_count')
-            ->limit(5)
-            ->get();
+            fclose($file);
+        };
 
-        // User terbaru
-        $latestUsers = User::where('role', 'user')
-            ->latest()
-            ->limit(5)
-            ->get();
-
-        return view('admin.reports', compact(
-            'totalBooks',
-            'totalUsers',
-            'totalRatings',
-            'totalReviews',
-            'newFeedbacks',
-            'ratingsDistribution',
-            'booksPerCategory',
-            'userRegistrations',
-            'popularBooks',
-            'latestUsers'
-        ));
+        return response()->stream($callback, 200, $headers);
     }
 }

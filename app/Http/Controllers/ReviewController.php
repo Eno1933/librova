@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminNotification;
 use App\Models\Book;
 use App\Models\Review;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;                      // <-- pastikan ada ini
+use Illuminate\View\View;
 
 class ReviewController extends Controller
 {
@@ -19,10 +20,17 @@ class ReviewController extends Controller
             'content' => 'required|string|min:5|max:1000',
         ]);
 
-        $book->reviews()->create([
+        $review = $book->reviews()->create([
             'user_id' => auth()->id(),
             'content' => $validated['content'],
             'status'  => 'pending',
+        ]);
+
+        // Notifikasi ke admin
+        AdminNotification::create([
+            'type'        => 'new_review',
+            'message'     => 'Review baru untuk buku "' . $book->title . '" oleh ' . auth()->user()->name,
+            'related_url' => route('admin.reviews.index', ['status' => 'pending']),
         ]);
 
         return redirect()->back()
@@ -32,7 +40,7 @@ class ReviewController extends Controller
     /**
      * Menampilkan semua review untuk moderasi (admin).
      */
-    public function index(Request $request): View      // <-- type‑hint yang benar
+    public function index(Request $request): View
     {
         $query = Review::with(['user', 'book']);
 

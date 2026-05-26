@@ -24,14 +24,19 @@ class BookController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('author', 'like', "%{$search}%")
-                  ->orWhere('isbn', 'like', "%{$search}%");
+                    ->orWhere('author', 'like', "%{$search}%")
+                    ->orWhere('isbn', 'like', "%{$search}%");
             });
         }
 
         // Filter kategori
         if ($request->filled('category')) {
             $query->whereHas('category', fn($q) => $q->where('slug', $request->category));
+        }
+
+        // Filter status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
         // Sorting
@@ -160,5 +165,16 @@ class BookController extends Controller
 
         return redirect()->route('admin.books.index')
             ->with('success', 'Buku berhasil dihapus.');
+    }
+
+    /**
+     * Toggle status buku (active/inactive).
+     */
+    public function toggleStatus(Book $book): RedirectResponse
+    {
+        $book->update([
+            'status' => $book->status === 'active' ? 'inactive' : 'active',
+        ]);
+        return redirect()->back()->with('success', 'Status buku berhasil diubah.');
     }
 }

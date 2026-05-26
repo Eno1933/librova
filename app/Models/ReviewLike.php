@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Notification;
 
 class ReviewLike extends Model
 {
@@ -72,4 +73,6 @@ class ReviewLike extends Model
             ->where('review_id', $reviewId)
             ->exists();
     }
+
+    
 }
