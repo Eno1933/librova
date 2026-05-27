@@ -35,6 +35,24 @@ class DashboardController extends Controller
         // Ambil semua kategori untuk filter
         $categories = Category::whereNull('parent_id')->with('children')->get();
 
-        return view('dashboard', compact('books', 'categories'));
+        // ✅ Buku populer (5 teratas berdasarkan view_count)
+        $popularBooks = Book::where('status', 'active')
+            ->orderByDesc('view_count')
+            ->with('category')
+            ->limit(5)
+            ->get();
+
+        // ✅ Buku yang sedang/sudah dibaca user (5 terakhir dari book_views)
+        $continueReading = collect();
+        if (auth()->check()) {
+            $continueReading = \App\Models\BookView::where('user_id', auth()->id())
+                ->with('book.category')
+                ->latest('viewed_at')
+                ->take(5)
+                ->get()
+                ->unique('book_id'); // hindari duplikat buku yang sama
+        }
+
+        return view('dashboard', compact('books', 'categories', 'popularBooks', 'continueReading'));
     }
 }

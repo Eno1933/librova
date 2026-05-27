@@ -3,24 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\BookView;
 use App\Models\Category;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    /**
-     * Tampilkan homepage untuk guest, atau redirect ke dashboard jika sudah login.
-     */
-    public function index(): View|RedirectResponse
+    public function index(): View
     {
-        // Jika user sudah login, langsung arahkan ke dashboard
+        // Jika user sudah login, redirect ke dashboard
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
 
-        // Data untuk tampilan guest
         $featuredBooks = Book::where('is_featured', true)
             ->where('status', 'active')
             ->with('category')
@@ -52,9 +48,16 @@ class HomeController extends Controller
             ->limit(8)
             ->get();
 
+        // ✅ Real data: total pembaca unik hari ini
+        $readToday = BookView::whereDate('viewed_at', today())->distinct('user_id')->count('user_id');
+
         return view('home', compact(
-            'featuredBooks', 'popularBooks', 'trendingBooks',
-            'newArrivals', 'categories'
+            'featuredBooks',
+            'popularBooks',
+            'trendingBooks',
+            'newArrivals',
+            'categories',
+            'readToday'
         ));
     }
 }

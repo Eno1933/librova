@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\AdminNotification;
 use App\Models\Feedback;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;   // ← pastikan ada
 
 class FeedbackController extends Controller
 {
@@ -25,12 +27,22 @@ class FeedbackController extends Controller
     /**
      * Menyimpan feedback. Bisa dilakukan oleh guest maupun user login.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
-        $validated = $request->validate([
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string|min:10|max:2000',
-        ]);
+        try {
+            $validated = $request->validate([
+                'subject' => 'required|string|max:255',
+                'message' => 'required|string|min:10|max:2000',
+            ]);
+        } catch (ValidationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'errors'  => $e->errors(),
+                    'message' => 'Validasi gagal. Periksa kembali isian Anda.',
+                ], 422);
+            }
+            throw $e;
+        }
 
         $feedback = Feedback::create([
             'user_id' => auth()->check() ? auth()->id() : null,
@@ -39,12 +51,15 @@ class FeedbackController extends Controller
             'status'  => 'new',
         ]);
 
-        // Buat notifikasi untuk admin
         AdminNotification::create([
             'type'        => 'new_feedback',
             'message'     => 'Feedback baru: ' . $feedback->subject,
             'related_url' => route('admin.feedbacks.index'),
         ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['message' => 'Terima kasih! Masukan kamu telah dikirim.']);
+        }
 
         return redirect()->back()->with('success', 'Terima kasih! Masukan kamu telah dikirim.');
     }

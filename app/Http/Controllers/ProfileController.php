@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProfileController extends Controller
 {
@@ -17,17 +18,25 @@ class ProfileController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user()->loadCount(['bookmarks', 'reviews', 'ratings']);
+
+        // Bookmark terbaru untuk ditampilkan di profil
         $recentBooks = $request->user()
             ->bookmarks()
             ->with('book.category')
             ->latest()
             ->limit(4)
             ->get();
+
+        // Statistik: jumlah buku unik yang sudah dibaca
+        $uniqueReadBooks = \App\Models\BookView::where('user_id', $user->id)
+            ->distinct('book_id')
+            ->count('book_id');
+
         $stats = [
             'bookmarks' => $user->bookmarks_count,
             'reviews'   => $user->reviews_count,
             'ratings'   => $user->ratings_count,
-            'read'      => \App\Models\BookView::where('user_id', $user->id)->count(),
+            'read'      => $uniqueReadBooks,   // buku unik yang sudah dibaca
         ];
 
         return view('profile.index', compact('user', 'recentBooks', 'stats'));
@@ -46,7 +55,6 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if ($request->hasFile('avatar')) {
-            // Hapus avatar lama jika ada
             if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
             }
@@ -94,10 +102,22 @@ class ProfileController extends Controller
      */
     public function history(Request $request): View
     {
-        $history = \App\Models\BookView::where('user_id', $request->user()->id)
+        $allViews = \App\Models\BookView::where('user_id', $request->user()->id)
             ->with('book.category')
             ->latest('viewed_at')
-            ->paginate(20);
+            ->get()
+            ->unique('book_id');   // hanya satu entri per buku (yang terbaru)
+
+        $page    = $request->get('page', 1);
+        $perPage = 10;
+        $items   = $allViews->forPage($page, $perPage);
+        $history = new LengthAwarePaginator(
+            $items,
+            $allViews->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return view('profile.history', compact('history'));
     }

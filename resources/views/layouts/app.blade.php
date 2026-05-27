@@ -62,7 +62,6 @@
                 <a href="{{ route('categories.index') }}" class="nav-link">Kategori</a>
                 @auth
                 <a href="{{ route('profile.bookmarks') }}" class="nav-link">Bookmark</a>
-                <a href="{{ route('feedback.show') }}" class="nav-link">Feedback</a> <!-- Tautan Feedback -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="nav-link flex items-center gap-1">
                         {{ auth()->user()->name }}

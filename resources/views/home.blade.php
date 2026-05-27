@@ -144,7 +144,7 @@
         <div class="book-card-3d b1"><div class="b-line"></div><div class="b-title">Atomic Habits</div><div class="b-auth">James Clear</div></div>
       </div>
       <div class="hero-badge b-a"><div class="hb-label">Rating Tertinggi</div><div class="hb-val">4.9 <span class="stars-sm"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span></div></div>
-      <div class="hero-badge b-b"><div class="hb-label">Dibaca Hari Ini</div><div class="hb-val">3,241 pembaca</div></div>
+      <div class="hero-badge b-b"><div class="hb-label">Dibaca Hari Ini</div><div class="hb-val">{{ number_format($readToday) }} pembaca</div></div>
     </div>
   </div>
 </section>
@@ -318,16 +318,34 @@
 @endif
 
 {{-- FEEDBACK SECTION --}}
-<div class="feedback-section">
+<div class="feedback-section" x-data="feedbackForm()">
   <div class="feedback-inner">
     <div class="fb-eyebrow"><i class="bi bi-chat-heart"></i> Suaramu penting untuk kami</div>
     <h2>Punya masukan<br>untuk Librova?</h2>
     <p>Kami terus berkembang. Ceritakan pengalamanmu atau buku apa yang ingin kamu temukan di Librova.</p>
-    <form action="{{ route('feedback.store') }}" method="POST" class="feedback-form">
-      @csrf
-      <input class="fb-input" type="text" name="subject" placeholder="Subjek masukan…" required>
-      <textarea class="fb-input" name="message" rows="4" placeholder="Tulis masukan, saran, atau permintaan koleksi buku…" required></textarea>
-      <button type="submit" class="fb-btn"><i class="bi bi-send"></i> Kirim Masukan</button>
+
+    {{-- Notifikasi Sukses --}}
+    <div x-show="successMessage" x-transition
+         style="background: #E8F5E9; color: #1a4a1c; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i class="bi bi-check-circle-fill"></i>
+        <span x-text="successMessage"></span>
+    </div>
+
+    {{-- Notifikasi Error --}}
+    <div x-show="errorMessage" x-transition
+         style="background: #FEF2F2; color: #B91C1C; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span x-text="errorMessage"></span>
+    </div>
+
+    <form @submit.prevent="submitForm" class="feedback-form">
+        @csrf
+        <input class="fb-input" type="text" name="subject" x-model="form.subject" placeholder="Subjek masukan…" required>
+        <textarea class="fb-input" name="message" x-model="form.message" rows="4" placeholder="Tulis masukan, saran, atau permintaan koleksi buku…" required></textarea>
+        <button type="submit" class="fb-btn" :disabled="loading">
+            <i class="bi bi-send"></i>
+            <span x-text="loading ? 'Mengirim…' : 'Kirim Masukan'"></span>
+        </button>
     </form>
   </div>
 </div>
@@ -349,6 +367,49 @@
   function setTrend(el) {
     document.querySelectorAll('.tr-pill').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
+  }
+
+  // ✅ Form Feedback dengan Alpine.js
+  function feedbackForm() {
+      return {
+          form: { subject: '', message: '' },
+          loading: false,
+          successMessage: '',
+          errorMessage: '',
+          async submitForm() {
+              this.loading = true;
+              this.successMessage = '';
+              this.errorMessage = '';
+              try {
+                  const response = await fetch('{{ route('feedback.store') }}', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                          'Accept': 'application/json',
+                      },
+                      body: JSON.stringify(this.form),
+                  });
+                  const data = await response.json();
+                  if (!response.ok) {
+                      if (data.errors) {
+                          const firstError = Object.values(data.errors)[0][0];
+                          this.errorMessage = firstError || 'Validasi gagal.';
+                      } else {
+                          this.errorMessage = data.message || 'Terjadi kesalahan.';
+                      }
+                      return;
+                  }
+                  this.successMessage = data.message || 'Terima kasih! Masukan kamu telah dikirim.';
+                  this.form.subject = '';
+                  this.form.message = '';
+              } catch (err) {
+                  this.errorMessage = 'Gagal mengirim feedback. Silakan coba lagi.';
+              } finally {
+                  this.loading = false;
+              }
+          }
+      };
   }
 </script>
 @endpush

@@ -2,216 +2,128 @@
 
 @auth
 <style>
-.bnav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 50;
-    padding-bottom: env(safe-area-inset-bottom);
-    border-top: 1px solid var(--border);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
-    transition: background 0.3s;
-}
-.bnav-inner {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 62px;
-    padding: 0 4px;
-    width: 100%;
-    max-width: 480px;
-    margin: 0 auto;
-}
+    /* ── Bottom Navbar Styles ── */
+    .bnav {
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+        padding-bottom: env(safe-area-inset-bottom);
+        border-top: 1px solid var(--border);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
+        transition: background 0.3s;
+    }
+    /* ✅ Langsung terapkan warna background sesuai tema */
+    html[data-theme="light"] .bnav { background: rgba(250,247,242,0.92); }
+    html[data-theme="dark"]  .bnav { background: rgba(30,30,25,0.94); }
 
-/* Each tab item */
-.bnav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    height: 100%;
-    text-decoration: none;
-    position: relative;
-    color: var(--tx3);
-    transition: color 0.2s;
-    -webkit-tap-highlight-color: transparent;
-    gap: 0;
-    cursor: pointer;
-    border: none;
-    background: none;
-    font-family: inherit;
-    padding: 0;
-}
-.bnav-item:active .bnav-pill {
-    transform: scale(0.92);
-}
+    .bnav-inner {
+        display: flex; justify-content: space-around; align-items: center;
+        height: 62px; padding: 0 4px; width: 100%;
+        max-width: 480px; margin: 0 auto;
+    }
 
-/* Pill bubble behind icon + label */
-.bnav-pill {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    padding: 6px 14px 5px;
-    border-radius: 100px;
-    transition:
-        background 0.25s cubic-bezier(.34,1.56,.64,1),
-        transform 0.2s cubic-bezier(.34,1.56,.64,1),
-        padding 0.25s;
-    will-change: transform;
-}
-.bnav-item.is-active .bnav-pill {
-    background: rgba(44, 95, 46, 0.10);
-    padding: 6px 16px 5px;
-    transform: translateY(-1px);
-}
-[data-theme="dark"] .bnav-item.is-active .bnav-pill {
-    background: rgba(74, 222, 128, 0.10);
-}
+    /* Each tab item */
+    .bnav-item {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        flex: 1; height: 100%; text-decoration: none; position: relative;
+        color: var(--tx3); transition: color 0.2s;
+        -webkit-tap-highlight-color: transparent; gap: 0;
+        cursor: pointer; border: none; background: none;
+        font-family: inherit; padding: 0;
+    }
+    .bnav-item:active .bnav-pill { transform: scale(0.92); }
 
-/* Icon wrapper */
-.bnav-icon {
-    width: 22px;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
-    flex-shrink: 0;
-}
-.bnav-item.is-active .bnav-icon {
-    transform: scale(1.08);
-}
+    /* Pill bubble behind icon + label */
+    .bnav-pill {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 3px; padding: 6px 14px 5px; border-radius: 100px;
+        transition: background 0.25s cubic-bezier(.34,1.56,.64,1),
+                    transform 0.2s cubic-bezier(.34,1.56,.64,1), padding 0.25s;
+        will-change: transform;
+    }
+    .bnav-item.is-active .bnav-pill {
+        background: rgba(44, 95, 46, 0.10); padding: 6px 16px 5px; transform: translateY(-1px);
+    }
+    [data-theme="dark"] .bnav-item.is-active .bnav-pill {
+        background: rgba(74, 222, 128, 0.10);
+    }
 
-/* Label */
-.bnav-label {
-    font-size: 0.6rem;
-    font-weight: 500;
-    line-height: 1;
-    white-space: nowrap;
-    letter-spacing: 0.01em;
-    transition: font-weight 0.15s, opacity 0.2s;
-    opacity: 0.7;
-}
-.bnav-item.is-active .bnav-label {
-    font-weight: 600;
-    opacity: 1;
-}
+    /* Icon wrapper */
+    .bnav-icon {
+        width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+        transition: transform 0.25s cubic-bezier(.34,1.56,.64,1); flex-shrink: 0;
+    }
+    .bnav-item.is-active .bnav-icon { transform: scale(1.08); }
 
-/* Active dot indicator at top of navbar */
-.bnav-dot {
-    position: absolute;
-    top: -1px;
-    left: 50%;
-    transform: translateX(-50%) scaleX(0);
-    width: 20px;
-    height: 2.5px;
-    border-radius: 0 0 3px 3px;
-    background: var(--primary);
-    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.2s;
-    opacity: 0;
-}
-.bnav-item.is-active .bnav-dot {
-    transform: translateX(-50%) scaleX(1);
-    opacity: 1;
-}
+    /* Label */
+    .bnav-label {
+        font-size: 0.6rem; font-weight: 500; line-height: 1; white-space: nowrap;
+        letter-spacing: 0.01em; transition: font-weight 0.15s, opacity 0.2s; opacity: 0.7;
+    }
+    .bnav-item.is-active .bnav-label { font-weight: 600; opacity: 1; }
 
-/* Color states */
-.bnav-item { color: var(--tx3); }
-.bnav-item.is-active { color: var(--primary); }
+    /* Active dot indicator at top of navbar */
+    .bnav-dot {
+        position: absolute; top: -1px; left: 50%;
+        transform: translateX(-50%) scaleX(0); width: 20px; height: 2.5px;
+        border-radius: 0 0 3px 3px; background: var(--primary);
+        transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.2s; opacity: 0;
+    }
+    .bnav-item.is-active .bnav-dot { transform: translateX(-50%) scaleX(1); opacity: 1; }
 
-/* Search modal backdrop */
-.bnav-modal-backdrop {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 60;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-}
-.bnav-modal-card {
-    position: absolute;
-    top: 5rem; left: 1rem; right: 1rem;
-    background: var(--surface);
-    border-radius: 16px;
-    box-shadow: 0 20px 48px rgba(0,0,0,0.18);
-    padding: 1.25rem;
-    border: 1px solid var(--border);
-}
-.bnav-modal-form {
-    display: flex;
-    gap: 10px;
-}
-.bnav-modal-input-wrap {
-    flex: 1;
-    position: relative;
-}
-.bnav-modal-input-wrap svg {
-    position: absolute;
-    left: 12px; top: 50%;
-    transform: translateY(-50%);
-    width: 18px; height: 18px;
-    color: var(--tx3);
-    pointer-events: none;
-}
-.bnav-modal-input {
-    width: 100%;
-    padding: 11px 14px 11px 38px;
-    border-radius: 10px;
-    border: 1.5px solid var(--border);
-    background: var(--bg);
-    color: var(--tx);
-    font-family: inherit;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-}
-.bnav-modal-input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(44,95,46,0.1);
-}
-[data-theme="dark"] .bnav-modal-input:focus {
-    box-shadow: 0 0 0 3px rgba(74,222,128,0.1);
-}
-.bnav-modal-submit {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 11px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background .2s, transform .15s;
-    flex-shrink: 0;
-}
-[data-theme="dark"] .bnav-modal-submit { color: var(--bg); }
-.bnav-modal-submit:hover { background: var(--primary-h); }
-.bnav-modal-submit:active { transform: scale(0.95); }
-.bnav-modal-cancel {
-    margin-top: 10px;
-    width: 100%;
-    padding: 8px;
-    text-align: center;
-    font-size: 0.82rem;
-    color: var(--tx3);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    transition: color .15s;
-}
-.bnav-modal-cancel:hover { color: var(--tx); }
+    /* Color states */
+    .bnav-item { color: var(--tx3); }
+    .bnav-item.is-active { color: var(--primary); }
 
-/* Mobile spacer */
-.bnav-spacer { display: block; height: 80px; }
-@media(min-width: 640px) { .bnav, .bnav-spacer { display: none; } }
+    /* Search modal backdrop */
+    .bnav-modal-backdrop {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+        z-index: 60; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+    .bnav-modal-card {
+        position: absolute; top: 5rem; left: 1rem; right: 1rem;
+        background: var(--surface); border-radius: 16px;
+        box-shadow: 0 20px 48px rgba(0,0,0,0.18); padding: 1.25rem;
+        border: 1px solid var(--border);
+    }
+    .bnav-modal-form { display: flex; gap: 10px; }
+    .bnav-modal-input-wrap { flex: 1; position: relative; }
+    .bnav-modal-input-wrap svg {
+        position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+        width: 18px; height: 18px; color: var(--tx3); pointer-events: none;
+    }
+    .bnav-modal-input {
+        width: 100%; padding: 11px 14px 11px 38px; border-radius: 10px;
+        border: 1.5px solid var(--border); background: var(--bg); color: var(--tx);
+        font-family: inherit; font-size: 0.9rem; outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+    .bnav-modal-input:focus {
+        border-color: var(--primary); box-shadow: 0 0 0 3px rgba(44,95,46,0.1);
+    }
+    [data-theme="dark"] .bnav-modal-input:focus { box-shadow: 0 0 0 3px rgba(74,222,128,0.1); }
+    .bnav-modal-submit {
+        background: var(--primary); color: white; border: none;
+        padding: 11px 16px; border-radius: 10px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background .2s, transform .15s; flex-shrink: 0;
+    }
+    [data-theme="dark"] .bnav-modal-submit { color: var(--bg); }
+    .bnav-modal-submit:hover { background: var(--primary-h); }
+    .bnav-modal-submit:active { transform: scale(0.95); }
+    .bnav-modal-cancel {
+        margin-top: 10px; width: 100%; padding: 8px; text-align: center;
+        font-size: 0.82rem; color: var(--tx3); background: none; border: none;
+        cursor: pointer; font-family: inherit; transition: color .15s;
+    }
+    .bnav-modal-cancel:hover { color: var(--tx); }
 
-/* Alpine cloak */
-[x-cloak] { display: none !important; }
+    /* Mobile spacer */
+    .bnav-spacer { display: block; height: 80px; }
+    @media(min-width: 640px) { .bnav, .bnav-spacer { display: none; } }
+
+    /* Alpine cloak */
+    [x-cloak] { display: none !important; }
 </style>
 
 <nav class="bnav"
@@ -223,13 +135,9 @@
              const observer = new MutationObserver(() => {
                  this.darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
              });
-             observer.observe(document.documentElement, {
-                 attributes: true,
-                 attributeFilter: ['data-theme']
-             });
+             observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
          }
-     }"
-     :style="{ background: darkMode ? 'rgba(30,30,25,0.94)' : 'rgba(250,247,242,0.92)' }">
+     }">
 
     <div class="bnav-inner">
 
@@ -340,10 +248,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
-                    <input type="text" name="search"
-                           placeholder="Cari judul atau penulis…"
-                           class="bnav-modal-input"
-                           autofocus>
+                    <input type="text" name="search" placeholder="Cari judul atau penulis…" class="bnav-modal-input" autofocus>
                 </div>
                 <button type="submit" class="bnav-modal-submit">
                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,10 +257,7 @@
                     </svg>
                 </button>
             </form>
-
-            <button @click="searchOpen = false" class="bnav-modal-cancel">
-                Tutup
-            </button>
+            <button @click="searchOpen = false" class="bnav-modal-cancel">Tutup</button>
         </div>
     </div>
 

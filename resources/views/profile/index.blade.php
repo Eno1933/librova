@@ -688,7 +688,8 @@
             <div class="card-body">
                 <div class="mini-grid">
                     @foreach($recentBooks as $bm)
-                        <a href="{{ route('books.show', $bm->book->slug) }}" class="mini-bk" style="background:linear-gradient(145deg, {{ $bm->book->cover_color ?? '#2C5F2E' }}, {{ $bm->book->cover_color_dark ?? '#1d4220' }})">
+                        <a href="{{ route('books.show', $bm->book->slug) }}" class="mini-bk"
+                           style="@if($bm->book->cover_image) background-image: url('{{ Storage::url($bm->book->cover_image) }}'); background-size: cover; background-position: center; @else background: linear-gradient(145deg, {{ $bm->book->cover_color ?? '#2C5F2E' }}, {{ $bm->book->cover_color_dark ?? '#1d4220' }}); @endif">
                             <div class="mini-bk-title">{{ Str::limit($bm->book->title, 15) }}</div>
                         </a>
                     @endforeach
