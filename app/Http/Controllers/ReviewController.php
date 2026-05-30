@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AdminNotification;
 use App\Models\Book;
 use App\Models\Review;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -14,7 +15,7 @@ class ReviewController extends Controller
     /**
      * Menyimpan review baru dari user.
      */
-    public function store(Request $request, Book $book): RedirectResponse
+    public function store(Request $request, Book $book): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'content' => 'required|string|min:5|max:1000',
@@ -33,6 +34,14 @@ class ReviewController extends Controller
             'related_url' => route('admin.reviews.index', ['status' => 'pending']),
         ]);
 
+        // Jika request dari AJAX/fetch, kembalikan JSON
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'message' => 'Ulasan berhasil dikirim dan sedang menunggu moderasi.',
+            ]);
+        }
+
+        // Fallback untuk form submit biasa (non-JS)
         return redirect()->back()
             ->with('success', 'Ulasan berhasil dikirim dan sedang menunggu moderasi.');
     }

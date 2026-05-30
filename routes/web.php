@@ -103,7 +103,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
         ->name('books.toggleStatus');
     Route::resource('categories', AdminCategoryController::class)->except('show');
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
-    Route::patch('users/{user}/toggle-suspend', [AdminUserController::class, 'toggleSuspend'])->name('users.toggle-suspend');
+    Route::get('users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+    Route::patch('users/{user}/toggle-suspend', [AdminUserController::class, 'toggleSuspend'])
+    ->name('users.toggle-suspend');
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{review}/status', [ReviewController::class, 'updateStatus'])->name('reviews.update-status');
     Route::get('feedbacks', [AdminFeedbackController::class, 'index'])->name('feedbacks.index');

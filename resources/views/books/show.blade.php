@@ -295,6 +295,7 @@
 }
 [data-theme="dark"] .review-submit { color: var(--bg); }
 .review-submit:hover { background: var(--primary-h); transform: translateY(-1px); }
+.review-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ── Related ── */
 .related-grid {
@@ -435,14 +436,16 @@
             @endauth
 
             @auth
-            @php /* Hitung isBookmarked sekali */ $isBookmarked = auth()->user()->bookmarks()->where('book_id', $book->id)->exists(); @endphp
-            <form action="{{ route('bookmarks.toggle', $book->id) }}" method="POST">
-                @csrf
-                <button type="submit" class="btn-bm {{ $isBookmarked ? 'bookmarked' : '' }}">
-                    <i class="bi {{ $isBookmarked ? 'bi-bookmark-fill' : 'bi-bookmark' }}"></i>
-                    {{ $isBookmarked ? 'Tersimpan' : 'Bookmark' }}
-                </button>
-            </form>
+            {{-- Bookmark Button --}}
+            @php $isBookmarked = auth()->user()->bookmarks()->where('book_id', $book->id)->exists(); @endphp
+            <button class="btn-bm {{ $isBookmarked ? 'bookmarked' : '' }}"
+                    id="bookmarkBtn"
+                    data-book-id="{{ $book->id }}"
+                    onclick="toggleBookmark(this)">
+                <i class="bi {{ $isBookmarked ? 'bi-bookmark-fill' : 'bi-bookmark' }}"></i>
+                <span>{{ $isBookmarked ? 'Tersimpan' : 'Bookmark' }}</span>
+            </button>
+            <div id="bookmarkMsg" style="margin-top:10px;font-size:0.85rem;color:var(--primary);display:none;"></div>
             @endauth
 
             @if($book->is_downloadable && auth()->check())
@@ -483,9 +486,8 @@
             {{-- Distribution bars --}}
             <div class="rating-dist">
                 @php
-                /* $ratingDistribution sudah dijamin punya key 1-5 dari controller */
                 $maxRatingCount = max($ratingDistribution);
-                $maxRatingCount = max($maxRatingCount, 1); /* cegah division by zero */
+                $maxRatingCount = max($maxRatingCount, 1);
                 @endphp
                 @foreach(range(5, 1) as $star)
                 @php $count = $ratingDistribution[$star]; @endphp
@@ -509,13 +511,11 @@
                  saving:  false,
                  status:  '{{ $userRating ? 'Kamu memberi ' . $userRating->score . ' bintang' : 'Belum dinilai' }}',
                  labels:  ['', 'Buruk', 'Kurang', 'Cukup', 'Bagus', 'Luar Biasa'],
-
                  async rate(score) {
                      if (this.saving) return;
                      this.saving  = true;
                      this.current = score;
                      this.status  = 'Menyimpan…';
-
                      try {
                          const res = await fetch('{{ route('books.rate', $book->id) }}', {
                              method: 'POST',
@@ -525,10 +525,8 @@
                              },
                              body: JSON.stringify({ score }),
                          });
-
                          if (!res.ok) throw new Error(res.statusText);
                          const data = await res.json();
-
                          this.status = 'Tersimpan ✓ · Rata-rata: ' + parseFloat(data.average).toFixed(1) + ' (' + data.count + ' penilai)';
                      } catch (e) {
                          this.status = 'Gagal menyimpan. Coba lagi.';
@@ -629,17 +627,32 @@
         </div>
         @endforelse
 
-        {{-- Review form --}}
+        {{-- Review form dengan AJAX --}}
         @auth
-        <div class="review-form-wrap">
+        <div class="review-form-wrap" x-data="reviewForm()">
             <div class="review-form-label">Tulis Ulasanmu</div>
-            <form action="{{ route('reviews.store', $book) }}" method="POST">
+
+            <div x-show="successMessage" x-transition
+                 style="background: #E8F5E9; color: #1a4a1c; padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <i class="bi bi-check-circle-fill"></i>
+                <span x-text="successMessage"></span>
+            </div>
+
+            <div x-show="errorMessage" x-transition
+                 style="background: #FEF2F2; color: #B91C1C; padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span x-text="errorMessage"></span>
+            </div>
+
+            <form @submit.prevent="submitForm">
                 @csrf
                 <textarea name="content" class="review-textarea"
+                          x-model="form.content"
                           placeholder="Bagikan pengalamanmu membaca buku ini…" required
                           maxlength="1000"></textarea>
-                <button type="submit" class="review-submit">
-                    <i class="bi bi-send"></i> Kirim Ulasan
+                <button type="submit" class="review-submit" :disabled="loading">
+                    <i class="bi bi-send"></i>
+                    <span x-text="loading ? 'Mengirim…' : 'Kirim Ulasan'"></span>
                 </button>
             </form>
         </div>
@@ -699,3 +712,83 @@
 
 <x-mobile-bottom-nav active="books" />
 @endsection
+
+@push('scripts')
+<script>
+    // Bookmark AJAX
+    async function toggleBookmark(btn) {
+        const bookId = btn.dataset.bookId;
+        const icon = btn.querySelector('i');
+        const text = btn.querySelector('span');
+        const msgDiv = document.getElementById('bookmarkMsg');
+
+        try {
+            const res = await fetch(`/books/${bookId}/bookmark`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            });
+            const data = await res.json();
+            if (data.bookmarked) {
+                btn.classList.add('bookmarked');
+                icon.className = 'bi bi-bookmark-fill';
+                text.textContent = 'Tersimpan';
+            } else {
+                btn.classList.remove('bookmarked');
+                icon.className = 'bi bi-bookmark';
+                text.textContent = 'Bookmark';
+            }
+            msgDiv.textContent = data.message;
+            msgDiv.style.display = 'block';
+            setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
+        } catch (err) {
+            alert('Gagal memproses bookmark.');
+        }
+    }
+
+    // Review AJAX
+    function reviewForm() {
+        return {
+            form: { content: '' },
+            loading: false,
+            successMessage: '',
+            errorMessage: '',
+            async submitForm() {
+                this.loading = true;
+                this.successMessage = '';
+                this.errorMessage = '';
+                try {
+                    const response = await fetch('{{ route('reviews.store', $book) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify(this.form),
+                    });
+                    const data = await response.json();
+                    if (!response.ok) {
+                        if (data.errors) {
+                            const firstError = Object.values(data.errors)[0][0];
+                            this.errorMessage = firstError || 'Validasi gagal.';
+                        } else {
+                            this.errorMessage = data.message || 'Terjadi kesalahan.';
+                        }
+                        return;
+                    }
+                    this.successMessage = data.message || 'Ulasan berhasil dikirim.';
+                    this.form.content = '';
+                    setTimeout(() => { this.successMessage = ''; }, 3000);
+                } catch (err) {
+                    this.errorMessage = 'Gagal mengirim ulasan. Silakan coba lagi.';
+                } finally {
+                    this.loading = false;
+                }
+            }
+        };
+    }
+</script>
+@endpush
