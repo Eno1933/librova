@@ -5,7 +5,7 @@
 @push('styles')
 <style>
     /* ═══════════════════════════════════════════
-       PROFILE PAGE STYLES (TANPA HERO)
+        PROFILE PAGE STYLES (TANPA HERO)
     ═══════════════════════════════════════════ */
     .profile-page { padding: 0 0 100px; }
 
@@ -304,6 +304,11 @@
         padding: 16px;
         text-align: center;
         cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .file-input-wrapper:hover {
+        border-color: var(--primary);
+        background: var(--surface);
     }
     .file-input-wrapper input[type="file"] {
         position: absolute;
@@ -312,10 +317,28 @@
         cursor: pointer;
         width: 100%;
         height: 100%;
+        z-index: 2;
     }
     .file-label {
         font-size: .82rem;
         color: var(--tx3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Image Preview Container */
+    .preview-container {
+        display: none;
+        margin-bottom: 10px;
+    }
+    .preview-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin: 0 auto;
     }
 
     /* Password strength */
@@ -606,13 +629,19 @@
                         </div>
                     </div>
 
+                    {{-- Form Foto Profil yang sudah ditambahkan fitur Preview --}}
                     <div class="form-group">
                         <label class="form-label">Foto Profil</label>
                         <div class="file-input-wrapper">
-                            <input type="file" name="avatar" accept="image/*">
+                            <input type="file" name="avatar" accept="image/*" onchange="previewAvatar(this)">
                             <div class="file-label">
-                                <i class="bi bi-camera-fill" style="font-size:1.2rem"></i> <strong>Klik untuk pilih foto</strong> atau drag & drop<br>
-                                <span style="font-size:.75rem">PNG, JPG maksimal 2MB</span>
+                                <div class="preview-container" id="avatarPreviewContainer">
+                                    <img src="" alt="Preview Avatar" class="preview-image" id="avatarPreview">
+                                </div>
+                                <div id="avatarLabelText">
+                                    <i class="bi bi-camera-fill" style="font-size:1.2rem"></i> <strong>Klik untuk pilih foto</strong> atau drag & drop<br>
+                                    <span style="font-size:.75rem">PNG, JPG maksimal 2MB</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -726,6 +755,31 @@
 
 @push('scripts')
 <script>
+    // Fungsi untuk menampilkan Preview Avatar
+    function previewAvatar(input) {
+        const previewContainer = document.getElementById('avatarPreviewContainer');
+        const previewImage = document.getElementById('avatarPreview');
+        const labelText = document.getElementById('avatarLabelText');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+                // Opsional: Sembunyikan teks ikon kamera jika ingin lebih bersih, 
+                // tapi menampilkannya dengan margin juga terlihat bagus.
+                // labelText.style.display = 'none'; 
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            previewImage.src = '';
+            previewContainer.style.display = 'none';
+            // labelText.style.display = 'block';
+        }
+    }
+
     function togglePw(id, btn) {
         const input = document.getElementById(id);
         const icon = btn.querySelector('i');
