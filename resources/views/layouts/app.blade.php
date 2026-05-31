@@ -28,6 +28,30 @@
         @media (max-width: 900px) { .menu-toggle { display: flex; align-items: center; justify-content: center; } .nav-links, .nav-search { display: none; } }
         html[data-theme='light'] .theme-btn .icon-moon { display: none; }
         html[data-theme='dark'] .theme-btn .icon-sun { display: none; }
+
+        /* MODAL STYLES */
+        [x-cloak] { display: none !important; }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex; /* Normal flex agar bisa disembunyikan Alpine */
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .modal-card {
+            animation: modalPop 0.2s ease;
+        }
+        @keyframes modalPop { 
+            from { transform: scale(0.95); opacity: 0; } 
+            to { transform: scale(1); opacity: 1; } 
+        }
     </style>
 </head>
 
@@ -71,15 +95,15 @@
                         <a href="{{ route('dashboard') }}" class="dropdown-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
                         <a href="{{ route('profile') }}" class="dropdown-item"><i class="bi bi-person"></i> Profil Saya</a>
                         <a href="{{ route('profile.history') }}" class="dropdown-item"><i class="bi bi-clock-history"></i> Riwayat Baca</a>
-                        <a href="{{ route('feedback.show') }}" class="dropdown-item"><i class="bi bi-chat-dots"></i> Kirim Feedback</a> <!-- Tambahan di dropdown -->
+                        <a href="{{ route('feedback.show') }}" class="dropdown-item"><i class="bi bi-chat-dots"></i> Kirim Feedback</a>
                         @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="dropdown-item" style="color: var(--primary);"><i class="bi bi-shield-lock"></i> Panel Admin</a>
                         @endif
                         <hr style="border-color: var(--border); margin: 4px 0;">
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item w-full text-left" style="color: #B91C1C;"><i class="bi bi-box-arrow-right"></i> Keluar</button>
-                        </form>
+                        {{-- Tombol Logout Desktop diubah menjadi Trigger Modal --}}
+                        <button type="button" @click="open = false; $dispatch('open-logout-modal')" class="dropdown-item w-full text-left" style="color: #B91C1C; background: none; border: none; font-family: inherit; cursor: pointer;">
+                            <i class="bi bi-box-arrow-right"></i> Keluar
+                        </button>
                     </div>
                 </div>
                 @else
@@ -121,14 +145,14 @@
                 <a href="{{ route('dashboard') }}" class="nav-link">Dashboard</a>
                 <a href="{{ route('profile') }}" class="nav-link">Profil</a>
                 <a href="{{ route('profile.history') }}" class="nav-link">Riwayat</a>
-                <a href="{{ route('feedback.show') }}" class="nav-link">Feedback</a> <!-- Tambahan di mobile -->
+                <a href="{{ route('feedback.show') }}" class="nav-link">Feedback</a>
                 @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.dashboard') }}" class="nav-link" style="color: var(--primary);"><i class="bi bi-shield-lock"></i> Panel Admin</a>
                 @endif
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button class="btn-outline" style="width: 100%;"><i class="bi bi-box-arrow-right"></i> Keluar</button>
-                </form>
+                {{-- Tombol Logout Mobile diubah menjadi Trigger Modal --}}
+                <button type="button" @click="mobileMenuOpen = false; $dispatch('open-logout-modal')" class="btn-outline" style="width: 100%;">
+                    <i class="bi bi-box-arrow-right"></i> Keluar
+                </button>
             @else
                 <a href="{{ route('login') }}" class="btn-outline" style="display: block; text-align: center;">Masuk</a>
                 <a href="{{ route('register') }}" class="btn-primary" style="display: block; text-align: center;">Daftar</a>
@@ -169,8 +193,9 @@
                 <a href="{{ route('profile') }}">Profil</a>
                 <a href="{{ route('profile.bookmarks') }}">Bookmark</a>
                 <a href="{{ route('profile.history') }}">Riwayat Baca</a>
-                <a href="{{ route('feedback.show') }}">Feedback</a> <!-- Tambahan di footer -->
-                <form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="text-left text-sm">Keluar</button></form>
+                <a href="{{ route('feedback.show') }}">Feedback</a>
+                {{-- Tombol Logout Footer diubah menjadi Trigger Modal --}}
+                <button type="button" @click="$dispatch('open-logout-modal')" class="text-left text-sm" style="background: none; border: none; color: inherit; cursor: pointer; padding: 0; font-family: inherit;">Keluar</button>
                 @else
                 <a href="{{ route('login') }}">Masuk</a>
                 <a href="{{ route('register') }}">Daftar</a>
@@ -182,6 +207,34 @@
             <span>Read More. Discover More.</span>
         </div>
     </footer>
+
+    {{-- MODAL LOGOUT GLOBAL --}}
+    <div x-data="{ showLogoutModal: false }" @open-logout-modal.window="showLogoutModal = true">
+        <template x-teleport="body">
+            <div x-show="showLogoutModal" x-cloak
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 class="modal-overlay"
+                 @click.self="showLogoutModal = false">
+
+                <div class="modal-card" style="background:var(--surface); border-radius:16px; padding:28px 24px; max-width:380px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.25); text-align:center;">
+                    <i class="bi bi-box-arrow-right" style="font-size:2.5rem; color:#ef4444;"></i>
+                    <h3 style="font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--tx); margin-top:10px;">Konfirmasi Logout</h3>
+                    <p style="color:var(--tx2); font-size:.9rem; margin-bottom:20px;">Apakah Anda yakin ingin keluar dari akun?</p>
+                    <div style="display:flex; gap:10px; justify-content:center;">
+                        <button @click="showLogoutModal = false"
+                                style="padding:10px 20px; border-radius:100px; border:1.5px solid var(--border); background:var(--surface); color:var(--tx2); font-weight:600; cursor:pointer; transition:background .2s;">Batal</button>
+                        <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+                            @csrf
+                            <button type="submit"
+                                    style="padding:10px 20px; border-radius:100px; background:#ef4444; color:#fff; border:none; font-weight:600; cursor:pointer; transition:background .2s;">Ya, Keluar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
 
     @stack('scripts')
 </body>

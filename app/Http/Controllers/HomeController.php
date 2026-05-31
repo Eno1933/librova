@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\BookView;
 use App\Models\Category;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
         // Jika user sudah login, redirect ke dashboard
         if (Auth::check()) {
